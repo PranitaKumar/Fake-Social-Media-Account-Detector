@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINSTA FINDER</title>
+    <style>
+        :root {
+            --instagram-blue: #405DE6;
+            --instagram-purple: #5B51D8;
+            --instagram-pink: #F77737;
+            --instagram-orange: #FCAF45;
+            --instagram-yellow: #FFDC80;
+            --instagram-red: #FD1D1D;
+            --success: #4BB543;
+            --warning: #FF9800;
+            --danger: #FF5252;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-top: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .input-container {
+            padding: 20px;
+            background: white;
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid #efefef;
+            border-radius: 30px 0 0 30px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        input:focus {
+            border-color: var(--instagram-blue);
+        }
+        
+        button {
+            background: linear-gradient(45deg, var(--instagram-purple), var(--instagram-red));
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 0 30px 30px 0;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .loading-container {
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #efefef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(45deg, var(--instagram-blue), var(--instagram-purple), var(--instagram-red));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .loading-text {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .results-container {
+            padding: 0;
+        }
+        
+        .results-header {
+            background: linear-gradient(45deg, var(--instagram-orange), var(--instagram-red));
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .results-title {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .username-highlight {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .analysis-card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .analysis-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .bio-card {
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        }
+        
+        .photo-card {
+            background: linear-gradient(135deg, #f6d365, #fda085);
+        }
+        
+        .engagement-card {
+            background: linear-gradient(135deg, #90f7ec, #32ccbc);
+        }
+        
+        .overall-card {
+            background: linear-gradient(135deg, #b721ff, #21d4fd);
+        }
+        
+        .card-header {
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-body {
+            background-color: white;
+            padding: 20px;
+        }
+        
+        .risk-meter {
+            margin: 15px 0;
+            position: relative;
+            height: 40px;
+        }
+        
+        .risk-bar {
+            height: 8px;
+            width: 100%;
+            background: linear-gradient(90deg, var(--success), var(--warning), var(--danger));
+            border-radius: 4px;
+        }
+        
+        .risk-indicator {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 3px solid #555;
+            border-radius: 50%;
+            top: -6px;
+            left: 0%;
+            transform: translateX(-50%);
+            transition: left 1s ease;
+        }
+        
+        .risk-text {
+            margin-top: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .risk-low {
+            color: var(--success);
+        }
+        
+        .risk-medium {
+            color: var(--warning);
+        }
+        
+        .risk-high {
+            color: var(--danger);
+        }
+        
+        .finding-list {
+            margin: 15px 0;
+        }
+        
+        .finding-item {
+            background-color: #f9f9f9;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .metric-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .high-metric {
+            background-color: var(--danger);
+        }
+        
+        .medium-metric {
+            background-color: var(--warning);
+        }
+        
+        .low-metric {
+            background-color: var(--success);
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Error message styling */
+        #error-message {
+            margin-top: 15px;
+            padding: 12px;
+            text-align: center;
+            color: white;
+            background: linear-gradient(45deg, var(--instagram-red), var(--danger));
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FINSTA FINDER</h1>
+            <p class="subtitle">Enter a username to analyze</p>
+        </header>
+        
+        <div class="card">
+            <div class="input-container">
+                <div class="input-group">
+                    <input type="text" id="username-input" placeholder="Enter Instagram username">
+                    <button id="analyze-btn">Analyze</button>
+                </div>
+                <div id="error-message" class="hidden">NO PROFILE FOUND</div>
+            </div>
+        </div>
+        
+        <div id="loading-container" class="card hidden">
+            <div class="loading-container">
+                <div class="loading-text">Analyzing profile data...</div>
+                <div class="progress-bar">
+                    <div id="progress-bar" class="progress"></div>
+                </div>
+                <div id="loading-status">Collecting profile information...</div>
+            </div>
+        </div>
+        
+        <div id="results-container" class="card hidden">
+            <div class="results-header">
+                <h2 class="results-title">Analysis Results for <span id="analyzed-username" class="username-highlight"></span></h2>
+            </div>
+            
+            <div class="analysis-grid">
+                <div class="analysis-card bio-card">
+                    <div class="card-header">Bio Analysis</div>
+                    <div class="card-body">
+                        <div class="risk-meter">
+                            <div class="risk-bar"></div>
+                            <div id="bio-risk-indicator" class="risk-indicator"></div>
+                        </div>
+                        <div id="bio-risk" class="risk-text">Low Risk</div>
+                        
+                        <div class="finding-list">
+                            <div id="bio-content" class="finding-item">
+                                <strong>Bio Content:</strong> <span id="bio-text">Loading bio text...</span>
+                            </div>
+                            <div id="bio-finding" class="finding-item">
+                                Scanning bio for suspicious content...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-card photo-card">
+                    <div class="card-header">Profile Photo Analysis</div>
+                    <div class="card-body">
+                        <div class="risk-meter">
+                            <div class="risk-bar"></div>
+                            <div id="photo-risk-indicator" class="risk-indicator"></div>
+                        </div>
+                        <div id="photo-risk" class="risk-text">Medium Risk</div>
+                        
+                        <div class="metric-container">
+                            <span class="metric-label">Authenticity Score</span>
+                            <span id="photo-authenticity" class="metric-value medium-metric">6/10</span>
+                        </div>
+                        <div class="metric-container">
+                            <span class="metric-label">AI Generation Probability</span>
+                            <span id="photo-ai" class="metric-value medium-metric">45%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-card engagement-card">
+                    <div class="card-header">Engagement Analysis</div>
+                    <div class="card-body">
+                        <div class="risk-meter">
+                            <div class="risk-bar"></div>
+                            <div id="engagement-risk-indicator" class="risk-indicator"></div>
+                        </div>
+                        <div id="engagement-risk" class="risk-text">Medium Risk</div>
+                        
+                        <div class="metric-container">
+                            <span class="metric-label">Follower/Following Ratio</span>
+                            <span id="follower-ratio" class="metric-value medium-metric">1:4.5</span>
+                        </div>
+                        <div class="metric-container">
+                            <span class="metric-label">Engagement Rate</span>
+                            <span id="engagement-rate" class="metric-value low-metric">2.1%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-card overall-card">
+                    <div class="card-header">Overall Risk Assessment</div>
+                    <div class="card-body">
+                        <div class="risk-meter">
+                            <div class="risk-bar"></div>
+                            <div id="overall-risk-indicator" class="risk-indicator"></div>
+                        </div>
+                        <div id="overall-risk" class="risk-text">Medium Risk</div>
+                        
+                        <div id="overall-finding" class="finding-item">
+                            This profile shows some suspicious indicators that suggest it may be a fake account.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Fake Profile Analyzer &copy; 2025 | M PRANITA and GOPIKA M NAIR</p>
+        </footer>
+    </div>
+
+    <script>
+        
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const usernameInput = document.getElementById('username-input');
+        const loadingContainer = document.getElementById('loading-container');
+        const progressBar = document.getElementById('progress-bar');
+        const loadingStatus = document.getElementById('loading-status');
+        const resultsContainer = document.getElementById('results-container');
+        const analyzedUsername = document.getElementById('analyzed-username');
+        const errorMessage = document.getElementById('error-message');
+
+        // Risk indicators
+        const bioRiskIndicator = document.getElementById('bio-risk-indicator');
+        const photoRiskIndicator = document.getElementById('photo-risk-indicator');
+        const engagementRiskIndicator = document.getElementById('engagement-risk-indicator');
+        const overallRiskIndicator = document.getElementById('overall-risk-indicator');
+
+        // Risk texts
+        const bioRiskText = document.getElementById('bio-risk');
+        const photoRiskText = document.getElementById('photo-risk');
+        const engagementRiskText = document.getElementById('engagement-risk');
+        const overallRiskText = document.getElementById('overall-risk');
+
+        // Findings and metrics
+        const bioText = document.getElementById('bio-text');
+        const bioFinding = document.getElementById('bio-finding');
+        const overallFinding = document.getElementById('overall-finding');
+        const photoAuthenticity = document.getElementById('photo-authenticity');
+        const photoAi = document.getElementById('photo-ai');
+        const followerRatio = document.getElementById('follower-ratio');
+        const engagementRate = document.getElementById('engagement-rate');
+
+        // API endpoint - Updated to include a fallback
+        const API_URL = 'http://localhost:5000/api/analyze';
+
+        // Flag to use mock data if API is unavailable
+        let useMockData = false; // Setting to true since the API might not be fully configured
+
+        // Add event listener to the analyze button
+        analyzeBtn.addEventListener('click', startAnalysis);
+
+        // Add event listener to input for Enter key
+        usernameInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                startAnalysis();
+            }
+        });
+
+        function startAnalysis() {
+            const username = usernameInput.value.trim();
+            
+            // Simple validation
+            if (!username) {
+                alert('Please enter a username to analyze.');
+                return;
+            }
+            
+            // Hide error message if it was previously shown
+            errorMessage.classList.add('hidden');
+            
+            // Set the analyzed username
+            analyzedUsername.textContent = username;
+            
+            // Show loading container, hide results
+            loadingContainer.classList.remove('hidden');
+            resultsContainer.classList.add('hidden');
+            
+            // Reset progress bar
+            progressBar.style.width = '0%';
+            
+            // Simulate loading with steps while making the API request
+            simulateLoading(username);
+        }
+
+        function simulateLoading(username) {
+            const loadingSteps = [
+                { progress: 10, message: "Connecting to Instagram..." },
+                { progress: 25, message: "Fetching profile data..." },
+                { progress: 40, message: "Analyzing bio content..." },
+                { progress: 60, message: "Evaluating profile photos..." },
+                { progress: 75, message: "Analyzing engagement metrics..." },
+                { progress: 90, message: "Calculating risk scores..." }
+            ];
+            
+            let currentStep = 0;
+            
+            // Start the loading animation
+            function processStep() {
+                if (currentStep < loadingSteps.length) {
+                    const step = loadingSteps[currentStep];
+                    progressBar.style.width = step.progress + '%';
+                    loadingStatus.textContent = step.message;
+                    currentStep++;
+                    
+                    setTimeout(processStep, 800); // Each step takes 800ms
+                } else {
+                    // When animation is done, make the actual API call
+                    callAnalysisApi(username);
+                }
+            }
+            
+            // Start the loading process
+            processStep();
+        }
+
+        function callAnalysisApi(username) {
+            // Set the final loading step
+            progressBar.style.width = '95%';
+            loadingStatus.textContent = "Processing results...";
+            
+            // For demonstration purposes, let's simulate some usernames not being found
+            // This would be replaced with real API logic in production
+            if (username.includes('notfound') || username.includes('nonexistent')) {
+                // Simulate a failed API call for testing
+                simulateProfileNotFound();
+                return;
+            }
+            
+            if (useMockData) {
+                // Use mock data if API is unavailable
+                getMockResults(username);
+                return;
+            }
+            
+            // Make the API request
+            fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: username }),
+            })
+            .then(async response => {
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Unknown error');
+                }
+
+                return data;
+            })
+            .then(data => {
+                // Complete the loading bar
+                progressBar.style.width = '100%';
+                loadingStatus.textContent = "Analysis complete!";
+                
+                // Short delay to show the completed loading state
+                setTimeout(() => {
+                    // Display the analysis results
+                    displayResults(data);
+                }, 500);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+
+                // Hide loading
+                loadingContainer.classList.add('hidden');
+
+                // Show error message
+                errorMessage.textContent = error.message.includes("Username") ? 
+                    "NO PROFILE FOUND" : "NO PROFILE FOUND";
+                errorMessage.classList.remove('hidden');
+
+                // Hide previous results if any
+                resultsContainer.classList.add('hidden');
+            });
+        }
+
+        // Simulates a profile not found error for testing
+        function simulateProfileNotFound() {
+            setTimeout(() => {
+                // Hide loading
+                loadingContainer.classList.add('hidden');
+                
+                // Show error message
+                errorMessage.textContent = "NO PROFILE FOUND";
+                errorMessage.classList.remove('hidden');
+                
+                // Hide results
+                resultsContainer.classList.add('hidden');
+            }, 1000);
+        }
+
+        function getMockResults(username) {
+            // Generate deterministic results based on the username
+            const hash = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            
+            // Create different risk profiles based on username hash
+            const riskLevel = hash % 3; // 0 = low, 1 = medium, 2 = high
+            const bioRisk = 20 + (riskLevel * 30) + (hash % 20);
+            const photoRisk = 30 + (riskLevel * 25) + ((hash * 7) % 20);
+            const engagementRisk = 25 + (riskLevel * 30) + ((hash * 13) % 20);
+            const overallRisk = Math.round((bioRisk + photoRisk + engagementRisk) / 3);
+            
+            // Determine if the profile has a picture (based on hash)
+            const hasProfilePicture = (hash % 4 !== 0); // 25% chance of no profile picture
+            
+            // Generate mock bio for the user
+            let mockBio;
+            const spamKeywords = ["gift", "giveaway", "increase followers", "cash", "free", "win", "deal", "offer", "promotion", "boost", "limited time", "next", "level"];
+            
+            if (riskLevel === 2) {
+                // Highly suspicious bio for high risk accounts
+                const randomKeywords = [];
+                const numKeywords = 2 + (hash % 2); // 2-4 suspicious keywords
+                
+                for (let i = 0; i < numKeywords; i++) {
+                    const keyword = spamKeywords[hash % spamKeywords.length];
+                    randomKeywords.push(keyword);
+                }
+                
+                mockBio = `Check out my profile for amazing ${randomKeywords[0]} opportunities! DM for ${randomKeywords[1]} deals!`;
+                if (numKeywords > 2) {
+                    mockBio += ` Limited time ${randomKeywords[2]} promotion!`;
+                }
+            } else if (riskLevel === 1) {
+                // Somewhat suspicious bio
+                const keyword = spamKeywords[hash % spamKeywords.length];
+                mockBio = `Photography enthusiast | Travel lover | DM for ${keyword} opportunities`;
+            } else {
+                // Normal bio
+                const bioOptions = [
+                    "Photography enthusiast | Travel lover | Coffee addict",
+                    "Living life one day at a time ✨| Nature lover 🌿",
+                    "Digital creator | Based in New York | Contact for business inquiries",
+                    "Just here to share my journey 🌍 | Dog lover 🐕",
+                    "Artist • Photographer • Dreamer • Based in LA"
+                ];
+                mockBio = bioOptions[hash % bioOptions.length];
+            }
+            
+            // Determine bio finding based on risk level
+            let bioFindingText;
+            if (riskLevel === 1) {
+                bioFindingText = "This account's bio contains multiple suspicious keywords typically associated with fake or spam accounts.";
+            } else if (riskLevel === 0) {
+                bioFindingText = "The bio contains some promotional language that could be suspicious, but isn't definitively spam.";
+            } else {
+                bioFindingText = "This account's bio appears authentic and lacks suspicious promotional language.";
+            }
+            
+            const mockData = {
+                "username": username,
+                "score": overallRisk / 100,
+                "account_status": riskLevel === 0 ? "real" : riskLevel === 1 ? "suspicious" : "fake",
+                "bioAnalysis": {
+                    "bio": mockBio,
+                    "risk": bioRisk,
+                    "finding": bioFindingText
+                },
+                "photoAnalysis": {
+                    "risk": photoRisk,
+                    "authenticity": 10 - Math.round(photoRisk / 10),
+                    "aiProbability": Math.round(photoRisk),
+                    "hasProfilePicture": hasProfilePicture
+                },
+                "engagementAnalysis": {
+                    "risk": engagementRisk,
+                    "followerRatio": `1:${(3 + (hash % 7) / 2).toFixed(1)}`,
+                    "engagementRate": `${(5 - (riskLevel * 1.5)).toFixed(1)}%`
+                },
+                "overallAnalysis": {
+                    "risk": overallRisk,
+                    "finding": riskLevel === 0 
+                        ? " Most characteristics align with typical legitimate user behavior. This is a real account"
+                        : riskLevel === 1 
+                        ? "This profile shows some suspicious indicators that suggest it may be a fake account. Further verification is recommended."
+                        : "High probability of being a fake account. Multiple suspicious indicators detected across bio content, photos, and engagement patterns."
+                }
+            };
+            
+            // Complete the loading bar
+            progressBar.style.width = '100%';
+            loadingStatus.textContent = "Analysis complete! (Offline Mode)";
+            
+            // Short delay to show the completed loading state
+            setTimeout(() => {
+                // Display the mock results
+                displayResults(mockData);
+            }, 500);
+        }
+
+        function displayResults(results) {
+            // Hide loading, show results
+            loadingContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            // Update the UI with the results
+            updateResultsUI(results);
+        }
+
+        function updateResultsUI(results) {
+            // Update risk indicators positions (0-100%)
+            bioRiskIndicator.style.left = results.bioAnalysis.risk + '%';
+            photoRiskIndicator.style.left = results.photoAnalysis.risk + '%';
+            engagementRiskIndicator.style.left = results.engagementAnalysis.risk + '%';
+            overallRiskIndicator.style.left = results.overallAnalysis.risk + '%';
+            
+            // Update risk text classifications
+            bioRiskText.textContent = getRiskLevelText(results.bioAnalysis.risk);
+            bioRiskText.className = 'risk-text ' + getRiskClass(results.bioAnalysis.risk);
+            
+            photoRiskText.textContent = getRiskLevelText(results.photoAnalysis.risk);
+            photoRiskText.className = 'risk-text ' + getRiskClass(results.photoAnalysis.risk);
+            
+            engagementRiskText.textContent = getRiskLevelText(results.engagementAnalysis.risk);
+            engagementRiskText.className = 'risk-text ' + getRiskClass(results.engagementAnalysis.risk);
+            
+            overallRiskText.textContent = getRiskLevelText(results.overallAnalysis.risk);
+            overallRiskText.className = 'risk-text ' + getRiskClass(results.overallAnalysis.risk);
+            
+            // Update bio text and finding
+            bioText.textContent = results.bioAnalysis.bio || "No bio available";
+            bioFinding.textContent = results.bioAnalysis.finding;
+            
+            // Update overall finding
+            overallFinding.textContent = results.overallAnalysis.finding;
+            
+            // Check if profile has a picture and update UI accordingly
+            if (!results.photoAnalysis.hasProfilePicture) {
+                // Case: No profile picture detected
+                photoAuthenticity.textContent = "N/A";
+                photoAuthenticity.className = 'metric-value high-metric';
+
+                photoAi.textContent = "No Picture";
+                photoAi.className = 'metric-value high-metric';
+
+                // Show message on photo card
+                const photoCardBody = document.querySelector('.photo-card .card-body');
+                
+                // Check if we already added this message
+                const existingMessage = photoCardBody.querySelector('.no-photo-message');
+                if (!existingMessage) {
+                    const noPhotoMessage = document.createElement('div');
+                    noPhotoMessage.textContent = "No profile picture detected!";
+                    noPhotoMessage.className = "no-photo-message";
+                    noPhotoMessage.style.marginTop = "10px";
+                    noPhotoMessage.style.fontWeight = "bold";
+                    noPhotoMessage.style.color = "#FF5252";
+                    noPhotoMessage.style.textAlign = "center";
+                    photoCardBody.appendChild(noPhotoMessage);
+                }
+
+                // Risk display
+                photoRiskText.textContent = "High Risk";
+                photoRiskText.className = 'risk-text risk-high';
+                photoRiskIndicator.style.left = '80%';
+            } else {
+                // Normal case: Profile picture exists
+                photoAuthenticity.textContent = results.photoAnalysis.authenticity + '/10';
+                photoAuthenticity.className = 'metric-value ' + getMetricClass(results.photoAnalysis.authenticity, true);
+                
+                photoAi.textContent = results.photoAnalysis.aiProbability + '%';
+                photoAi.className = 'metric-value ' + getMetricClass(10 - (results.photoAnalysis.aiProbability / 10), true);
+                
+                // Remove the no photo message if it exists
+                const photoCardBody = document.querySelector('.photo-card .card-body');
+                const existingMessage = photoCardBody.querySelector('.no-photo-message');
+                if (existingMessage) {
+                    photoCardBody.removeChild(existingMessage);
+                }
+            }
+            
+            // Update engagement metrics
+            followerRatio.textContent = results.engagementAnalysis.followerRatio;
+            followerRatio.className = 'metric-value ' + getMetricClass(results.engagementAnalysis.risk < 50 ? 7 : 3, true);
+            
+            engagementRate.textContent = results.engagementAnalysis.engagementRate;
+            engagementRate.className = 'metric-value ' + getMetricClass(parseFloat(results.engagementAnalysis.engagementRate) * 2, true);
+        }
+
+        function getRiskLevelText(riskScore) {
+            if (riskScore >= 70) return "High Risk";
+            if (riskScore >= 40) return "Medium Risk";
+            return "Low Risk";
+        }
+
+        function getRiskClass(riskScore) {
+            if (riskScore >= 70) return "risk-high";
+            if (riskScore >= 40) return "risk-medium";
+            return "risk-low";
+        }
+
+        function getMetricClass(score, isPositive) {
+            // For metrics where higher is better
+            // Or metrics where lower is better (positive = false)
+            const adjustedScore = isPositive ? score : 10 - score;
+            
+            if (adjustedScore >= 7) return "low-metric"; // Green (good)
+            if (adjustedScore >= 4) return "medium-metric"; // Yellow (medium)
+            return "high-metric"; // Red (bad)
+        }
+    </script>
+</body>
+</html>
